@@ -1,0 +1,119 @@
+@model DishListViewModel
+@{
+    ViewData["Title"] = L.T("title.dishList");
+    var confirmMsg = L.T("confirm.delete");
+    string Q(string key) => Context.Request.Query[key].ToString();
+    var allErrors = ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Distinct().ToList();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">@L.T("title.dishList")</h2>
+    <a class="btn btn-success" asp-action="Create">+ @L.T("btn.create")</a>
+</div>
+
+@if (allErrors.Count > 0)
+{
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach (var msg in allErrors)
+            {
+                <li>@msg</li>
+            }
+        </ul>
+    </div>
+}
+
+@* Form GET: các điều kiện nằm trên query string nên được giữ nguyên sau khi gửi form và khi đổi ngôn ngữ *@
+<form method="get" action="@Url.Action("Index")" novalidate class="card card-body mb-3">
+    <div class="row g-2">
+        <div class="col-md-4">
+            <label class="form-label">@L.T("filter.search")</label>
+            <input type="text" name="Search" class="form-control" value="@Q("Search")" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">@L.T("filter.category")</label>
+            <select name="CategoryId" class="form-select">
+                <option value="">@L.T("filter.allCategories")</option>
+                @foreach (var c in Model.Categories)
+                {
+                    <option value="@c.Id" selected="@(Q("CategoryId") == c.Id.ToString())">@c.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">@L.T("filter.status")</label>
+            <select name="Status" class="form-select">
+                <option value="">@L.T("filter.allStatuses")</option>
+                <option value="available" selected="@(Q("Status") == "available")">@L.T("status.available")</option>
+                <option value="unavailable" selected="@(Q("Status") == "unavailable")">@L.T("status.unavailable")</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">@L.T("filter.minPrice")</label>
+            <input type="number" step="any" name="MinPrice" class="form-control" value="@Q("MinPrice")" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">@L.T("filter.maxPrice")</label>
+            <input type="number" step="any" name="MaxPrice" class="form-control" value="@Q("MaxPrice")" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">@L.T("filter.sort")</label>
+            <select name="Sort" class="form-select">
+                <option value="name" selected="@(Q("Sort") == "name" || Q("Sort") == "")">@L.T("sort.name")</option>
+                <option value="price_asc" selected="@(Q("Sort") == "price_asc")">@L.T("sort.priceAsc")</option>
+                <option value="price_desc" selected="@(Q("Sort") == "price_desc")">@L.T("sort.priceDesc")</option>
+                <option value="time_asc" selected="@(Q("Sort") == "time_asc")">@L.T("sort.timeAsc")</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-primary">@L.T("btn.filter")</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">@L.T("btn.reset")</a>
+        </div>
+    </div>
+</form>
+
+@if (!Model.Items.Any())
+{
+    <div class="alert alert-info">@L.T("empty.dishes")</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>@L.T("field.image")</th>
+                    <th>@L.T("field.name")</th>
+                    <th>@L.T("field.category")</th>
+                    <th class="text-end">@L.T("field.price")</th>
+                    <th>@L.T("field.time")</th>
+                    <th>@L.T("field.timeClass")</th>
+                    <th>@L.T("field.status")</th>
+                    <th>@L.T("field.actions")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model.Items)
+                {
+                    <tr class="@(d.IsAvailable ? "" : "table-secondary")">
+                        <td><partial name="_DishThumb" model="d" /></td>
+                        <td><a asp-action="Details" asp-route-id="@d.Id" class="fw-semibold text-decoration-none">@d.Name</a></td>
+                        <td>@d.DishCategory?.Name</td>
+                        <td class="text-end">@L.Money(d.Price)</td>
+                        <td>@L.T("minutes", d.PreparationTime)</td>
+                        <td><partial name="_TimeBadge" model="d" /></td>
+                        <td><partial name="_StatusBadge" model="d" /></td>
+                        <td class="text-nowrap">
+                            <a class="btn btn-sm btn-outline-info" asp-action="Details" asp-route-id="@d.Id">@L.T("btn.details")</a>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@d.Id">@L.T("btn.edit")</a>
+                            <form asp-action="Delete" asp-route-id="@d.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('@confirmMsg');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">@L.T("btn.delete")</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,96 @@
+@model Dish_BIT240118
+@{
+    ViewData["Title"] = Model.Name;
+    var confirmMsg = L.T("confirm.delete");
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h2 class="mb-0">@Model.Name</h2>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-action="Index">@L.T("btn.back")</a>
+        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">@L.T("btn.edit")</a>
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('@confirmMsg');">
+            <button type="submit" class="btn btn-outline-danger">@L.T("btn.delete")</button>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">@L.T("field.category")</dt>
+            <dd class="col-sm-9">@Model.DishCategory?.Name</dd>
+
+            <dt class="col-sm-3">@L.T("field.price")</dt>
+            <dd class="col-sm-9">@L.Money(Model.Price)</dd>
+
+            <dt class="col-sm-3">@L.T("field.time")</dt>
+            <dd class="col-sm-9">@L.T("minutes", Model.PreparationTime)</dd>
+
+            <dt class="col-sm-3">@L.T("field.timeClass")</dt>
+            <dd class="col-sm-9"><partial name="_TimeBadge" model="Model" /></dd>
+
+            <dt class="col-sm-3">@L.T("field.status")</dt>
+            <dd class="col-sm-9"><partial name="_StatusBadge" model="Model" /></dd>
+
+            <dt class="col-sm-3">@L.T("field.description")</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
+        </dl>
+    </div>
+</div>
+
+<h4 id="images">@L.T("title.images")</h4>
+
+@if (!Model.Images.Any())
+{
+    <div class="alert alert-info">@L.T("empty.images")</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 mb-4">
+        @foreach (var img in Model.Images)
+        {
+            <div class="col">
+                <div class="card h-100 @(img.IsThumbnail ? "border-success border-2" : "")">
+                    <img src="@img.ImageUrl" alt="@Model.Name" class="card-img-top gallery-img"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                    <div class="img-placeholder gallery-img" style="display:none">@L.T("noImage")</div>
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        @if (img.IsThumbnail)
+                        {
+                            <span class="badge bg-success">★ @L.T("badge.thumbnail")</span>
+                        }
+                        else
+                        {
+                            <form asp-controller="Images" asp-action="SetThumbnail" asp-route-id="@img.Id" method="post">
+                                <button type="submit" class="btn btn-sm btn-outline-success">@L.T("btn.setThumb")</button>
+                            </form>
+                        }
+                        <form asp-controller="Images" asp-action="Delete" asp-route-id="@img.Id" method="post"
+                              onsubmit="return confirm('@confirmMsg');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">@L.T("btn.delete")</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<div class="card">
+    <div class="card-header">@L.T("title.addImage")</div>
+    <div class="card-body">
+        <form asp-controller="Images" asp-action="Add" method="post" novalidate>
+            <input type="hidden" name="dishId" value="@Model.Id" />
+            <div class="mb-3">
+                <label class="form-label" for="imageUrl">@L.T("field.imageUrl")</label>
+                <input type="text" id="imageUrl" name="imageUrl" class="form-control" placeholder="https://..." />
+            </div>
+            <div class="form-check mb-3">
+                <input type="checkbox" id="isThumbnail" name="isThumbnail" value="true" class="form-check-input" />
+                <label class="form-check-label" for="isThumbnail">@L.T("field.thumbnail")</label>
+            </div>
+            <button type="submit" class="btn btn-primary">@L.T("btn.addImage")</button>
+        </form>
+    </div>
+</div>

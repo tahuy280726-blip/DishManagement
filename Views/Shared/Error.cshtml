@@ -1,0 +1,8 @@
+@{
+    ViewData["Title"] = L.T("title.error");
+}
+<div class="text-center py-5">
+    <h3>@L.T("title.error")</h3>
+    <p class="lead text-danger">@L.T("err.unexpected")</p>
+    <a class="btn btn-primary" asp-controller="Dishes" asp-action="Index">@L.T("btn.back")</a>
+</div>

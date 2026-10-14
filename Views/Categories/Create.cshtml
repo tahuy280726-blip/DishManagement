@@ -1,0 +1,11 @@
+@model DishCategory_BIT240118
+@{
+    ViewData["Title"] = L.T("title.categoryCreate");
+}
+<h2>@L.T("title.categoryCreate")</h2>
+<hr />
+<form asp-action="Create" method="post" novalidate>
+    <partial name="_CategoryForm" />
+    <button type="submit" class="btn btn-primary">@L.T("btn.save")</button>
+    <a class="btn btn-outline-secondary" asp-action="Index">@L.T("btn.cancel")</a>
+</form>

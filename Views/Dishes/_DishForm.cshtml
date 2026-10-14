@@ -1,0 +1,67 @@
+@model Dish_BIT240118
+@{
+    var cats = (SelectList)ViewBag.Categories;
+    var general = ViewData.ModelState[string.Empty];
+
+    string Attempted(string key, string fallback) =>
+        ViewData.ModelState.TryGetValue(key, out var entry) && entry.AttemptedValue != null ? entry.AttemptedValue : fallback;
+    string Inv(string key) =>
+        ViewData.ModelState[key]?.Errors.Count > 0 ? "is-invalid" : "";
+
+    var priceFallback = Model.Price > 0 ? Model.Price.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) : "";
+    var timeFallback = Model.PreparationTime > 0 ? Model.PreparationTime.ToString() : "";
+}
+
+@if (ViewBag.HasCategories == false)
+{
+    <div class="alert alert-warning">@L.T("warn.noCategory")</div>
+}
+
+@if (general != null && general.Errors.Count > 0)
+{
+    <div class="alert alert-danger">
+        @foreach (var err in general.Errors)
+        {
+            <div>@err.ErrorMessage</div>
+        }
+    </div>
+}
+
+<div class="mb-3">
+    <label class="form-label" for="Name">@L.T("field.name")</label>
+    <input asp-for="Name" class="form-control @Inv("Name")" maxlength="200" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label class="form-label" for="Price">@L.T("field.price")</label>
+        <input id="Price" name="Price" type="number" step="any" class="form-control @Inv("Price")"
+               value="@Attempted("Price", priceFallback)" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label class="form-label" for="PreparationTime">@L.T("field.time")</label>
+        <input id="PreparationTime" name="PreparationTime" type="number" step="any" class="form-control @Inv("PreparationTime")"
+               value="@Attempted("PreparationTime", timeFallback)" />
+        <span asp-validation-for="PreparationTime" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label class="form-label" for="DishCategoryId">@L.T("field.category")</label>
+        <select asp-for="DishCategoryId" asp-items="cats" class="form-select @Inv("DishCategoryId")">
+            <option value="">@L.T("select.category")</option>
+        </select>
+        <span asp-validation-for="DishCategoryId" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label" for="Description">@L.T("field.description")</label>
+    <textarea asp-for="Description" rows="3" class="form-control @Inv("Description")"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>
+
+<div class="form-check mb-3">
+    <input asp-for="IsAvailable" class="form-check-input" />
+    <label class="form-check-label" for="IsAvailable">@L.T("field.available")</label>
+</div>

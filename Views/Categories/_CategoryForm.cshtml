@@ -1,0 +1,26 @@
+@model DishCategory_BIT240118
+@{
+    var general = ViewData.ModelState[string.Empty];
+    string Inv(string key) => ViewData.ModelState[key]?.Errors.Count > 0 ? "is-invalid" : "";
+}
+
+@if (general != null && general.Errors.Count > 0)
+{
+    <div class="alert alert-danger">
+        @foreach (var err in general.Errors)
+        {
+            <div>@err.ErrorMessage</div>
+        }
+    </div>
+}
+
+<div class="mb-3">
+    <label class="form-label" for="Name">@L.T("field.categoryName")</label>
+    <input asp-for="Name" class="form-control @Inv("Name")" maxlength="200" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label class="form-label" for="Description">@L.T("field.description")</label>
+    <textarea asp-for="Description" rows="3" class="form-control @Inv("Description")"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>

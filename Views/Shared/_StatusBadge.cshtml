@@ -1,0 +1,2 @@
+@model Dish_BIT240118
+<span class="badge @(Model.IsAvailable ? "bg-primary" : "bg-danger")">@L.T(Model.IsAvailable ? "status.available" : "status.unavailable")</span>

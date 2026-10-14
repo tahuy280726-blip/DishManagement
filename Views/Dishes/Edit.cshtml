@@ -1,0 +1,12 @@
+@model Dish_BIT240118
+@{
+    ViewData["Title"] = L.T("title.dishEdit");
+}
+<h2>@L.T("title.dishEdit")</h2>
+<hr />
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate>
+    <partial name="_DishForm" />
+    <button type="submit" class="btn btn-primary">@L.T("btn.save")</button>
+    <a class="btn btn-outline-secondary" asp-action="Index">@L.T("btn.cancel")</a>
+    <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@Model.Id" asp-fragment="images">@L.T("btn.manageImages")</a>
+</form>

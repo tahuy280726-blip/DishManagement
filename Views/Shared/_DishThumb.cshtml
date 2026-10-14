@@ -1,0 +1,14 @@
+@model Dish_BIT240118
+@{
+    var thumb = Model.Images?.FirstOrDefault(i => i.IsThumbnail) ?? Model.Images?.FirstOrDefault();
+}
+@if (thumb != null)
+{
+    <img src="@thumb.ImageUrl" alt="@Model.Name" class="thumb-sm"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+    <div class="img-placeholder thumb-sm" style="display:none">@L.T("noImage")</div>
+}
+else
+{
+    <div class="img-placeholder thumb-sm">@L.T("noImage")</div>
+}
